@@ -59,11 +59,11 @@ wsServer.on('request', (req) => {
     connections[UID] = connection;
     
     if(true) {
-        time = dateFormat(new Date(), "hh:MM TT");
+        time = dateFormat(new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"}), "hh:MM TT");
         sendNotification('🟢 Active now', time);
     
         database.ref('user').child(UID).update({
-            online: 'true★'+new Date().getTime().toString()
+            online: 'true★'+new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"}).getTime().toString()
         });
     }
 
@@ -92,11 +92,11 @@ wsServer.on('request', (req) => {
         }
         
         if(true) {
-            time = dateFormat(new Date(), "hh:MM TT");
+            time = dateFormat(new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"}), "hh:MM TT");
             sendNotification('🔴 Offline', time);
         
             database.ref('user').child(UID).update({
-                online: 'false★'+new Date().getTime().toString()
+                online: 'false★'+new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"}).getTime().toString()
             });
         }
     });
