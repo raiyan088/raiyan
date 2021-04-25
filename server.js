@@ -65,7 +65,7 @@ wsServer.on('request', (req) => {
         sendNotification('🟢 Active now', list[1].substring(0, list[1].length-3)+' '+list[2]);
         
         database.ref('user').child(UID).update({
-            online: 'true★'+new Date()
+            online: 'true★'+new Date().getTime().toString()
         });
     }
 
@@ -101,7 +101,7 @@ wsServer.on('request', (req) => {
             sendNotification('🔴 Offline', list[1].substring(0, list[1].length-3)+' '+list[2]);
                     
             database.ref('user').child(UID).update({
-                online: 'false★'+new Date()
+                online: 'false★'+new Date().getTime().toString()
             });
         }
     });
