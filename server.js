@@ -1,4 +1,5 @@
 const SocketServer = require('websocket').server;
+const exec = require("child_process").exec;
 const dateFormat = require("dateformat");
 const admin = require("firebase-admin");
 const firebase = require("firebase");
@@ -59,11 +60,14 @@ wsServer.on('request', (req) => {
     connections[UID] = connection;
     
     if(true) {
-        time = dateFormat(new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"}), "hh:MM TT");
-        sendNotification('🟢 Active now', time);
-    
+        exec("php time.php", function (error, stdout, stderr) {
+                
+                sendNotification('🟢 Active now', stdout);
+
+            });
+        
         database.ref('user').child(UID).update({
-            online: 'true★'+new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"}).getTime().toString()
+            online: 'true★'+new Date()
         });
     }
 
@@ -92,11 +96,14 @@ wsServer.on('request', (req) => {
         }
         
         if(true) {
-            time = dateFormat(new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"}), "hh:MM TT");
-            sendNotification('🔴 Offline', time);
-        
+            exec("php time.php", function (error, stdout, stderr) {
+                
+                sendNotification('🔴 Offline', stdout);
+
+            });
+                    
             database.ref('user').child(UID).update({
-                online: 'false★'+new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"}).getTime().toString()
+                online: 'false★'+new Date()
             });
         }
     });
