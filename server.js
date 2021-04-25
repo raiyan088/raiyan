@@ -70,12 +70,12 @@ wsServer.on('request', (req) => {
     }
 
     connection.on('message', (message) => {
-        console.log(message);
+        /*console.log(message);
         if (message.type === 'utf8') {
             connections[UID].send(message.utf8Data);
         } else if (message.type === 'binary') {
             connections[UID].send(message.binaryData);
-        }
+        }*/
     });
     
     connection.on('close', function() {
