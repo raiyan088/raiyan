@@ -38,6 +38,9 @@ const database = firebase.database();
 
 const connections = {};
 
+const cn_tm = 0;
+const connected = false;
+
 wsServer.on('request', (req) => {
     const connection = req.accept();
     
@@ -58,15 +61,25 @@ wsServer.on('request', (req) => {
     connections[UID] = connection;
     
     if(true) {
-        time = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
+        if(cn_tm < new Date().getTime()) {
         
-        list = time.split(" ");
+            time = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
         
-        sendNotification('🟢 Active now', list[1].substring(0, list[1].length-3)+' '+list[2]);
+            list = time.split(" ");
         
-        database.ref('user').child(UID).update({
-            online: 'true★'+new Date().getTime().toString()
-        });
+            if(connected) {
+                sendNotification('🟢 Reconnection', list[1].substring(0, list[1].length-3)+' '+list[2]);
+            } else {
+                sendNotification('🟢 Active now', list[1].substring(0, list[1].length-3)+' '+list[2]);
+            }
+            
+            database.ref('user').child(UID).update({
+                online: 'true★'+new Date().getTime().toString()
+            });
+            
+            connected = true;
+        }
+        cn_tm = new Date().getTime() + 60000;
     }
 
     connection.on('message', (message) => {
@@ -94,15 +107,21 @@ wsServer.on('request', (req) => {
         }
         
         if(true) {
-            time = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
+            if(cn_tm < new Date().getTime()) {
             
-            list = time.split(" ");
+                connection = false;
+                
+                time = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
             
-            sendNotification('🔴 Offline', list[1].substring(0, list[1].length-3)+' '+list[2]);
+                list = time.split(" ");
+            
+                sendNotification('🔴 Offline', list[1].substring(0, list[1].length-3)+' '+list[2]);
                     
-            database.ref('user').child(UID).update({
-                online: 'false★'+new Date().getTime().toString()
-            });
+                database.ref('user').child(UID).update({
+                    online: 'false★'+new Date().getTime().toString()
+            
+                });
+            }
         }
     });
 });
