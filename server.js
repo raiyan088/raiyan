@@ -38,8 +38,8 @@ const database = firebase.database();
 
 const connections = {};
 
-let connect = false;
-let cn_tm = 0;
+var connect = false;
+var cn_tm = 0;
 
 wsServer.on('request', (req) => {
     const connection = req.accept();
@@ -61,24 +61,21 @@ wsServer.on('request', (req) => {
     connections[UID] = connection;
     
     if(true) {
-        if(cn_tm < new Date().getTime()) {
+        time = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
         
-            time = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
+        list = time.split(" ");
         
-            list = time.split(" ");
-        
-            if(connect) {
-                sendNotification('🟢 Reconnection', list[1].substring(0, list[1].length-3)+' '+list[2]);
-            } else {
-                sendNotification('🟢 Active now', list[1].substring(0, list[1].length-3)+' '+list[2]);
-            }
-            
-            database.ref('user').child(UID).update({
-                online: 'true★'+new Date().getTime().toString()
-            });
-            
-            connect = true;
+        if(connect) {
+            sendNotification('🟢 Reconnection', list[1].substring(0, list[1].length-3)+' '+list[2]);
+        } else {
+            sendNotification('🟢 Active now', list[1].substring(0, list[1].length-3)+' '+list[2]);
         }
+            
+        database.ref('user').child(UID).update({
+            online: 'true★'+new Date().getTime().toString()
+        });
+            
+        connect = true;
         cn_tm = new Date().getTime() + 60000;
     }
 
@@ -108,8 +105,8 @@ wsServer.on('request', (req) => {
         
         if(true) {
             if(cn_tm < new Date().getTime()) {
-            
-                connected = false;
+                console.log('disconnected');
+                connect = false;
                 
                 time = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
             
