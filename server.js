@@ -38,12 +38,12 @@ const database = firebase.database();
 
 const connections = {};
 
+let connect = false;
+let cn_tm = 0;
+
 wsServer.on('request', (req) => {
     const connection = req.accept();
     
-    connect = false;
-    cn_tm = 0;
-
     first_slash = req.resource.substring(0, 1);
     if (first_slash === '/') {
        index = req.resource.length;
