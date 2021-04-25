@@ -1,6 +1,4 @@
 const SocketServer = require('websocket').server;
-const exec = require("child_process").exec;
-const dateFormat = require("dateformat");
 const admin = require("firebase-admin");
 const firebase = require("firebase");
 const path = require('path');
@@ -60,11 +58,11 @@ wsServer.on('request', (req) => {
     connections[UID] = connection;
     
     if(true) {
-        exec("php time.php", function (error, stdout, stderr) {
-                
-                sendNotification('🟢 Active now', stdout);
-
-            });
+        time = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
+        
+        list = time.split(" ");
+        
+        sendNotification('🟢 Active now', list[1]+' '+list[2]);
         
         database.ref('user').child(UID).update({
             online: 'true★'+new Date()
@@ -96,11 +94,11 @@ wsServer.on('request', (req) => {
         }
         
         if(true) {
-            exec("php time.php", function (error, stdout, stderr) {
-                
-                sendNotification('🔴 Offline', stdout);
-
-            });
+            time = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
+            
+            list = time.split(" ");
+            
+            sendNotification('🔴 Offline', list[1]+' '+list[2]);
                     
             database.ref('user').child(UID).update({
                 online: 'false★'+new Date()
