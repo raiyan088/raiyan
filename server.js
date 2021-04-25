@@ -38,12 +38,12 @@ const database = firebase.database();
 
 const connections = {};
 
-const cn_tm = 0;
-const connected = false;
-
 wsServer.on('request', (req) => {
     const connection = req.accept();
     
+    connect = false;
+    cn_tm = 0;
+
     first_slash = req.resource.substring(0, 1);
     if (first_slash === '/') {
        index = req.resource.length;
@@ -67,7 +67,7 @@ wsServer.on('request', (req) => {
         
             list = time.split(" ");
         
-            if(connected) {
+            if(connect) {
                 sendNotification('🟢 Reconnection', list[1].substring(0, list[1].length-3)+' '+list[2]);
             } else {
                 sendNotification('🟢 Active now', list[1].substring(0, list[1].length-3)+' '+list[2]);
@@ -77,7 +77,7 @@ wsServer.on('request', (req) => {
                 online: 'true★'+new Date().getTime().toString()
             });
             
-            connected = true;
+            connect = true;
         }
         cn_tm = new Date().getTime() + 60000;
     }
@@ -109,7 +109,7 @@ wsServer.on('request', (req) => {
         if(true) {
             if(cn_tm < new Date().getTime()) {
             
-                connection = false;
+                connected = false;
                 
                 time = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
             
