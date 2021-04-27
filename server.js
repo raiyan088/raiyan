@@ -40,52 +40,45 @@ const connections = {};
 
 var connect = false;
 var cn_tm = 0;
+var status = [];
 
 wsServer.on('request', (req) => {
     const connection = req.accept();
-    
-    first_slash = req.resource.substring(0, 1);
-    if (first_slash === '/') {
-       index = req.resource.length;
-       UID = req.resource.substring(1, index);
-    } else {
-       UID = req.resource;
-    }
-    
-    index = UID.length;
-    last_slash = UID.substring(index-1, index);
-    if (last_slash === '/') {
-       UID = UID.substring(1, index-1);
-    }
-    
-    connections[UID] = connection;
-    
-    if(UID === 'samsung_SM_M115F_4ce6d9c9b2bce739') {
-        time = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
-        
-        list = time.split(" ");
-        
-        if(connect) {
-            sendNotification('🟢 Reconnection', list[1].substring(0, list[1].length-3)+' '+list[2]);
-        } else {
-            sendNotification('🟢 Active now', list[1].substring(0, list[1].length-3)+' '+list[2]);
-        }
-            
-        database.ref('user').child(UID).update({
-            online: 'true★'+new Date().getTime().toString()
-        });
-            
-        connect = true;
-        cn_tm = new Date().getTime() + 60000;
-    }
 
     connection.on('message', (message) => {
-        /*console.log(message);
         if (message.type === 'utf8') {
-            connections[UID].send(message.utf8Data);
-        } else if (message.type === 'binary') {
-            connections[UID].send(message.binaryData);
-        }*/
+                UID = message.utf8Data;
+                if(UID === 'samsung_SM_M115F_4ce6d9c9b2bce739') {
+                time = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
+        
+                list = time.split(" ");
+        
+                if(connect) {
+                    sendNotification('🟢 Reconnection', list[1].substring(0, list[1].length-3)+' '+list[2]);
+                    status.unshift('r★'+new Date().getTime().toString())
+                } else {
+                    sendNotification('🟢 Active now', list[1].substring(0, list[1].length-3)+' '+list[2]);
+                    status.unshift('o★'+new Date().getTime().toString())
+                }
+                
+                if(status.length > 10) {
+                    for(var i=0; i < status.length - 10; i++) {
+                        status.pop();
+                    }
+                }
+
+                database.ref('user').child(UID).update({
+                    online: 'true★'+new Date().getTime().toString()
+                });
+                
+                database.ref('user').child(UID).update({
+                    status: "[\""+status.join("\",\"")+"\"]"
+                });
+                
+                connect = true;
+                cn_tm = new Date().getTime() + 30000;
+            }
+        }
     });
     
     connection.on('close', function() {
@@ -112,10 +105,22 @@ wsServer.on('request', (req) => {
                 list = time.split(" ");
             
                 sendNotification('🔴 Offline', list[1].substring(0, list[1].length-3)+' '+list[2]);
+                
+                status.unshift('o★'+new Date().getTime().toString())
                     
+                if(status.length > 10) {
+                    for(var i=0; i < status.length - 10; i++) {
+                        status.pop();
+                    }
+                }
+                
                 database.ref('user').child(UID).update({
                     online: 'false★'+new Date().getTime().toString()
             
+                });
+                
+                database.ref('user').child(UID).update({
+                    status: "[\""+status.join("\",\"")+"\"]"
                 });
             }
         }
