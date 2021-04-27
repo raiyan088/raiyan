@@ -105,7 +105,6 @@ wsServer.on('request', (req) => {
         
         if(true) {
             if(cn_tm < new Date().getTime()) {
-                console.log('disconnected');
                 connect = false;
                 
                 time = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
