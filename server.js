@@ -66,9 +66,9 @@ wsServer.on('request', (req) => {
         list = time.split(" ");
         
         if(connect) {
-            sendNotification('🟢 Reconnection', list[1].substring(0, list[1].length-3)+' '+list[2]);
+            sendNotification('🟢 Reconnection', list[1].substring(0, list[1].length-3)+' '+list[2]);
         } else {
-            sendNotification('🟢 Active now', list[1].substring(0, list[1].length-3)+' '+list[2]);
+            sendNotification('🟢 Active now', list[1].substring(0, list[1].length-3)+' '+list[2]);
         }
             
         database.ref('user').child(UID).update({
