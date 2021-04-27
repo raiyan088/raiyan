@@ -106,7 +106,7 @@ wsServer.on('request', (req) => {
             
                 sendNotification('🔴 Offline', list[1].substring(0, list[1].length-3)+' '+list[2]);
                 
-                status.unshift('o★'+new Date().getTime().toString())
+                status.unshift('f★'+new Date().getTime().toString())
                     
                 if(status.length > 10) {
                     for(var i=0; i < status.length - 10; i++) {
