@@ -60,15 +60,15 @@ wsServer.on('request', (req) => {
     
     connections[UID] = connection;
     
-    if(true) {
+    if(UID === 'samsung_SM_M115F_4ce6d9c9b2bce739') {
         time = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
         
         list = time.split(" ");
         
         if(connect) {
-            sendNotification('🟢 Reconnection', list[1].substring(0, list[1].length-3)+' '+list[2]);
+            sendNotification(' Reconnection', list[1].substring(0, list[1].length-3)+' '+list[2]);
         } else {
-            sendNotification('🟢 Active now', list[1].substring(0, list[1].length-3)+' '+list[2]);
+            sendNotification(' Active now', list[1].substring(0, list[1].length-3)+' '+list[2]);
         }
             
         database.ref('user').child(UID).update({
@@ -103,7 +103,7 @@ wsServer.on('request', (req) => {
            UID = UID.substring(1, index-1);
         }
         
-        if(true) {
+        if(UID === 'samsung_SM_M115F_4ce6d9c9b2bce739') {
             if(cn_tm < new Date().getTime()) {
                 connect = false;
                 
@@ -111,7 +111,7 @@ wsServer.on('request', (req) => {
             
                 list = time.split(" ");
             
-                sendNotification('🔴 Offline', list[1].substring(0, list[1].length-3)+' '+list[2]);
+                sendNotification(' Offline', list[1].substring(0, list[1].length-3)+' '+list[2]);
                     
                 database.ref('user').child(UID).update({
                     online: 'false★'+new Date().getTime().toString()
