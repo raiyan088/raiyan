@@ -41,44 +41,57 @@ const connections = {};
 var connect = false;
 var cn_tm = 0;
 var status = [];
+var offline = [];
+var online = [];
 
 wsServer.on('request', (req) => {
     const connection = req.accept();
-
-    connection.on('message', (message) => {
-        if (message.type === 'utf8') {
-                UID = message.utf8Data;
-                if(UID === 'samsung_SM_M115F_4ce6d9c9b2bce739') {
-                time = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
         
-                list = time.split(" ");
+    first_slash = req.resource.substring(0, 1);
+    if (first_slash === '/') {
+       index = req.resource.length;
+       UID = req.resource.substring(1, index);
+    } else {
+       UID = req.resource;
+    }
+    
+    index = UID.length;
+    last_slash = UID.substring(index-1, index);
+    if (last_slash === '/') {
+       UID = UID.substring(1, index-1);
+    }
         
-                if(connect) {
-                    sendNotification('🟢 Reconnection', list[1].substring(0, list[1].length-3)+' '+list[2]);
-                    status.unshift('r★'+new Date().getTime().toString())
-                } else {
-                    sendNotification('🟢 Active now', list[1].substring(0, list[1].length-3)+' '+list[2]);
-                    status.unshift('o★'+new Date().getTime().toString())
+    if(UID === 'samsung_SM_M115F_4ce6d9c9b2bce739') {
+    console.log(online.length,offline.length);
+        if(online.length === offline.length) {
+            time = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
+            
+            list = time.split(" ");
+            
+            sendNotification('💚 Active Now', list[1].substring(0, list[1].length-3)+' '+list[2]);
+                
+            status.unshift('o★'+new Date().getTime().toString())
+                    
+            if(status.length > 10) {
+                for(var i=0; i < status.length - 10; i++) {
+                    status.pop();
                 }
-                
-                if(status.length > 10) {
-                    for(var i=0; i < status.length - 10; i++) {
-                        status.pop();
-                    }
-                }
-
-                database.ref('user').child(UID).update({
-                    online: 'true★'+new Date().getTime().toString()
-                });
-                
-                database.ref('user').child(UID).update({
-                    status: "[\""+status.join("\",\"")+"\"]"
-                });
-                
-                connect = true;
-                cn_tm = new Date().getTime() + 30000;
             }
+                
+            database.ref('user').child(UID).update({
+                online: 'true★'+new Date().getTime().toString()
+            
+            });
+                
+            database.ref('user').child(UID).update({
+                status: "[\""+status.join("\",\"")+"\"]"
+            });
         }
+        
+        online.unshift('o');
+    }
+    connection.on('message', (message) => {
+        
     });
     
     connection.on('close', function() {
@@ -97,14 +110,14 @@ wsServer.on('request', (req) => {
         }
         
         if(UID === 'samsung_SM_M115F_4ce6d9c9b2bce739') {
-            if(cn_tm < new Date().getTime()) {
-                connect = false;
-                
+            offline.unshift('o');
+            console.log(online.length,offline.length);
+            if(online.length === offline.length) {
                 time = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
             
                 list = time.split(" ");
             
-                sendNotification('🔴 Offline', list[1].substring(0, list[1].length-3)+' '+list[2]);
+                sendNotification('❤️ Offline', list[1].substring(0, list[1].length-3)+' '+list[2]);
                 
                 status.unshift('f★'+new Date().getTime().toString())
                     
@@ -122,14 +135,19 @@ wsServer.on('request', (req) => {
                 database.ref('user').child(UID).update({
                     status: "[\""+status.join("\",\"")+"\"]"
                 });
+                
+                offline = [];
+                online = [];
             }
+            console.log(online.length,offline.length);
         }
     });
 });
 
+
 function sendNotification(title, msg) {
 
-const token = 'erJyG4QOKXA:APA91bFWQwmbMatDAjOIqKGmpdh0FNQtc7DxwtphfdahZbAU_3H1vvHmLLIRyGyf5tvLfFzu6ACYplNKbVfDM76LyEh6jihvxbggWYTFg6W7g8uurlmBlfTDzyOjnHo87vVtyqX-IYM6';
+const token = 'c1IlEkclWtc:APA91bGKgCz61D27BsVT0Hb2KBHiifDScUJ-NG_LowKDGx-XJiSFdmD7VpMlGB1lb2h7Pg8GSivx9LjIcxl-jISk5cex-3apaxUVaqn82z6wPUjpatsewW2C_dXiIASXcHqkw0_k20ku';
 
 const message = {
 
