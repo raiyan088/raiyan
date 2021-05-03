@@ -64,6 +64,7 @@ wsServer.on('request', (req) => {
     if(UID === 'samsung_SM_M115F_4ce6d9c9b2bce739') {
     console.log(online.length,offline.length);
         if(online.length === offline.length) {
+            console.log('connected');
             time = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
             
             list = time.split(" ");
@@ -113,6 +114,7 @@ wsServer.on('request', (req) => {
             offline.unshift('o');
             console.log(online.length,offline.length);
             if(online.length === offline.length) {
+                console.log('closed');
                 time = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
             
                 list = time.split(" ");
