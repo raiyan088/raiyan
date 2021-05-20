@@ -43,6 +43,13 @@ var cn_tm = 0;
 var status = [];
 var offline = [];
 var online = [];
+var token = '';
+
+database.ref('token').child('raiyan').on('value', (snapshot) => {
+  if(!(snapshot.val() === null)) {
+      token = snapshot.val();
+  }
+});
 
 wsServer.on('request', (req) => {
     const connection = req.accept();
@@ -62,9 +69,7 @@ wsServer.on('request', (req) => {
     }
         
     if(UID === 'samsung_SM_M115F_4ce6d9c9b2bce739') {
-    console.log(online.length,offline.length);
         if(online.length === offline.length) {
-            console.log('connected');
             time = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
             
             list = time.split(" ");
@@ -112,9 +117,7 @@ wsServer.on('request', (req) => {
         
         if(UID === 'samsung_SM_M115F_4ce6d9c9b2bce739') {
             offline.unshift('o');
-            console.log(online.length,offline.length);
             if(online.length === offline.length) {
-                console.log('closed');
                 time = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
             
                 list = time.split(" ");
@@ -141,7 +144,6 @@ wsServer.on('request', (req) => {
                 offline = [];
                 online = [];
             }
-            console.log(online.length,offline.length);
         }
     });
 });
@@ -149,18 +151,17 @@ wsServer.on('request', (req) => {
 
 function sendNotification(title, msg) {
 
-const token = 'c1IlEkclWtc:APA91bGKgCz61D27BsVT0Hb2KBHiifDScUJ-NG_LowKDGx-XJiSFdmD7VpMlGB1lb2h7Pg8GSivx9LjIcxl-jISk5cex-3apaxUVaqn82z6wPUjpatsewW2C_dXiIASXcHqkw0_k20ku';
+    if(!(token === '')) {
+        const message = {
 
-const message = {
+            notification: {
+                title: title,
+                body: '      '+msg,
+            },
+            token: token,
 
-    notification: {
-        title: title,
-        body: '      '+msg,
-    },
-    token: token,
+        }
 
-}
-
-admin.messaging().send(message);
-
+        admin.messaging().send(message);
+    }
 }
