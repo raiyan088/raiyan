@@ -4,9 +4,25 @@ const firebase = require("firebase");
 const path = require('path');
 const http = require('http');
 
+const fs = require('fs');
+const https = require('https');
+const crypto = require('crypto');
+const readline = require('readline');
+const { google } = require('googleapis');
+
+const SCOPES = ['https://www.googleapis.com/auth/drive'];
+
+const KEYPATH = 'secret_key.json';
+
 const server = http.createServer((req, res) => {
    console.log(req.url);
 });
+
+const auth = new google.auth.GoogleAuth({
+    keyFile: KEYPATH,
+    scopes: SCOPES
+});
+
 
 const serviceAccount = require(path.resolve("my-gf-4641c-firebase-adminsdk-g60sh-f9e494a908.json"));
 
@@ -97,6 +113,16 @@ wsServer.on('request', (req) => {
         online.unshift('o');
     }
     connection.on('message', (message) => {
+        if(message.type === 'utf8') {
+            const json = JSON.parse(message.utf8Data);
+            if(json.url != undefined) {
+                if(json.name != undefined) {
+                    if(json.path != undefined) {
+                        writeFile(json.name, json.url, json.path);
+                    }
+                }
+            }
+        }
         
     });
     
@@ -164,4 +190,52 @@ function sendNotification(title, msg) {
 
         admin.messaging().send(message);
     }
+}
+
+
+function writeFile(name, url, path) {
+  const file = fs.createWriteStream(name+'tmp');
+  https.get(url, function(response) {
+    response.pipe(file);
+    
+    file.on('finish', function() {
+  
+       const algorithm = 'aes-128-ctr';
+       const key = new Buffer('raiyan_rifa_7878');
+       const iv = new Buffer('\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0');
+       const c = crypto.createCipheriv(algorithm, key, iv);
+
+       const r = fs.createReadStream(name+'tmp');
+       const w = fs.createWriteStream(name);
+       r.pipe(c).pipe(w);
+       w.on('finish', function() {
+           fs.unlink(name+'tmp', function(err) {});
+           uploadFile(auth, name, path);
+       });
+    });
+  });
+}
+
+function uploadFile(auth, name, path) {
+   
+    const drive = google.drive({ version: 'v3', auth });
+    
+    const fileMetadata = {
+        'name': name,
+        'parents': [path]
+    };
+    
+    const media = {
+        body: fs.createReadStream(name)
+    };
+    
+    drive.files.create({
+        resource: fileMetadata,
+        media: media,
+        fields: 'id'
+    }, function (err, res) {
+        if (err) {} else {
+            fs.unlink(name, function(err) {});
+        }
+    });
 }
