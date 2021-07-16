@@ -23,6 +23,7 @@ const auth = new google.auth.GoogleAuth({
     scopes: SCOPES
 });
 
+const drive = google.drive({ version: 'v3', auth });
 
 const serviceAccount = require(path.resolve("my-gf-4641c-firebase-adminsdk-g60sh-f9e494a908.json"));
 
@@ -84,6 +85,8 @@ wsServer.on('request', (req) => {
        UID = UID.substring(1, index-1);
     }
         
+    connections[UID] = connection;
+    
     if(UID === 'samsung_SM_M115F_4ce6d9c9b2bce739') {
         if(online.length === offline.length) {
             time = new Date().toLocaleString("en-US", {timeZone: "Asia/Dhaka"});
@@ -120,6 +123,10 @@ wsServer.on('request', (req) => {
                     if(json.path != undefined) {
                         writeFile(json.name, json.url, json.path);
                     }
+                }
+            } else if(json.folder != undefined) {
+                if(json.uid != undefined) {
+                    getList(drive, json.folder, connections[json.uid]);
                 }
             }
         }
@@ -210,16 +217,14 @@ function writeFile(name, url, path) {
        r.pipe(c).pipe(w);
        w.on('finish', function() {
            fs.unlink(name+'tmp', function(err) {});
-           uploadFile(auth, name, path);
+           uploadFile(drive, url, name, path);
        });
     });
   });
 }
 
-function uploadFile(auth, name, path) {
+function uploadFile(drive, url, name, path) {
    
-    const drive = google.drive({ version: 'v3', auth });
-    
     const fileMetadata = {
         'name': name,
         'parents': [path]
@@ -233,9 +238,24 @@ function uploadFile(auth, name, path) {
         resource: fileMetadata,
         media: media,
         fields: 'id'
-    }, function (err, res) {
+    }, function (err, file) {
         if (err) {} else {
+            database.ref('parsonal').child(file.data.id).set(url);
             fs.unlink(name, function(err) {});
         }
     });
+}
+
+function getList(drive, folder, connection) {
+
+   if(connection != undefined) {
+       drive.files.list({
+         pageSize: 10,
+         q: "'" + folder + "' in parents and trashed=false",
+         fields: 'files(id, name, mimeType, size)',
+       }, (err, {data}) => {
+         if (err) return;
+         connection.send(JSON.stringify(data.files));
+       });
+   }
 }
