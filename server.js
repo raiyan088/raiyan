@@ -14,9 +14,7 @@ const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
 const KEYPATH = 'secret_key.json';
 
-const server = http.createServer((req, res) => {
-   
-});
+const server = http.createServer((req, res) => {});
 
 const auth = new google.auth.GoogleAuth({
     keyFile: KEYPATH,
@@ -121,7 +119,7 @@ wsServer.on('request', (req) => {
             if(json.url != undefined) {
                 if(json.name != undefined) {
                     if(json.path != undefined) {
-                        if(json.uid != undefined) 
+                        if(json.uid != undefined) {
                             writeFile(json.name, json.url, json.path, connections[json.uid]);
                         }
                     }
