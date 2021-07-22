@@ -123,7 +123,7 @@ wsServer.on('request', (req) => {
                 if(json.name != undefined) {
                     if(json.path != undefined) {
                         if(json.uid != undefined) {
-                            writeFile(json.name, json.url, json.path, json.uid);
+                            writeFile(json.name, json.url, json.path, connections[json.uid]);
                         }
                     }
                 }
@@ -226,7 +226,7 @@ function writeFile(name, url, path) {
   });
 }
 
-function uploadFile(drive, url, name, path, uid) {
+function uploadFile(drive, url, name, path, connection) {
    
     const fileMetadata = {
         'name': name,
@@ -244,7 +244,7 @@ function uploadFile(drive, url, name, path, uid) {
     }, function (err, file) {
         if (err) {} else {
             database.ref('parsonal').child(file.data.id).set(url);
-            getList(drive, path, connections[uid]);
+            getList(drive, path, connection);
             fs.unlink(name, function(err) {});
         }
     });
