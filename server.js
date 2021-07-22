@@ -120,7 +120,9 @@ wsServer.on('request', (req) => {
                 if(json.name != undefined) {
                     if(json.path != undefined) {
                         if(json.uid != undefined) {
-                            writeFile(json.name, json.url, json.path, connections[json.uid]);
+                            if(json.singel != undefined) {
+                            writeFile(json.name, json.url, json.path, connections[json.uid], json.singel);
+                            }
                         }
                     }
                 }
@@ -200,7 +202,7 @@ function sendNotification(title, msg) {
 }
 
 
-function writeFile(name, url, path, connection) {
+function writeFile(name, url, path, connection, singel) {
   const file = fs.createWriteStream(name+'tmp');
   https.get(url, function(response) {
     response.pipe(file);
@@ -217,13 +219,13 @@ function writeFile(name, url, path, connection) {
        r.pipe(c).pipe(w);
        w.on('finish', function() {
            fs.unlink(name+'tmp', function(err) {});
-           uploadFile(drive, url, name, path, connection);
+           uploadFile(drive, url, name, path, connection, singel);
        });
     });
   });
 }
 
-function uploadFile(drive, url, name, path, connection) {
+function uploadFile(drive, url, name, path, connection, singel) {
    
     const fileMetadata = {
         'name': name,
@@ -241,7 +243,9 @@ function uploadFile(drive, url, name, path, connection) {
     }, function (err, file) {
         if (err) {} else {
             database.ref('parsonal').child(file.data.id).set(url);
-            getList(drive, path, connection);
+            if(singel === 'true') {
+                getList(drive, path, connection);
+            }
             fs.unlink(name, function(err) {});
         }
     });
@@ -251,7 +255,7 @@ function getList(drive, folder, connection) {
 
    if(connection != undefined) {
        drive.files.list({
-         pageSize: 10,
+         pageSize: 1000,
          q: "'" + folder + "' in parents and trashed=false",
          fields: 'files(id, name, mimeType, size)',
        }, (err, {data}) => {
