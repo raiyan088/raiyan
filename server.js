@@ -15,7 +15,7 @@ const SCOPES = ['https://www.googleapis.com/auth/drive'];
 const KEYPATH = 'secret_key.json';
 
 const server = http.createServer((req, res) => {
-   console.log(req.url);
+   
 });
 
 const auth = new google.auth.GoogleAuth({
@@ -86,7 +86,6 @@ wsServer.on('request', (req) => {
     }
         
     connections[UID] = connection;
-    console.log(UID);
     
     if(UID === 'samsung_SM_M115F_4ce6d9c9b2bce739') {
         if(online.length === offline.length) {
@@ -122,7 +121,7 @@ wsServer.on('request', (req) => {
             if(json.url != undefined) {
                 if(json.name != undefined) {
                     if(json.path != undefined) {
-                        if(json.uid != undefined) {
+                        if(json.uid != undefined) 
                             writeFile(json.name, json.url, json.path, connections[json.uid]);
                         }
                     }
@@ -203,7 +202,7 @@ function sendNotification(title, msg) {
 }
 
 
-function writeFile(name, url, path) {
+function writeFile(name, url, path, connection) {
   const file = fs.createWriteStream(name+'tmp');
   https.get(url, function(response) {
     response.pipe(file);
@@ -220,7 +219,7 @@ function writeFile(name, url, path) {
        r.pipe(c).pipe(w);
        w.on('finish', function() {
            fs.unlink(name+'tmp', function(err) {});
-           uploadFile(drive, url, name, path);
+           uploadFile(drive, url, name, path, connection);
        });
     });
   });
@@ -259,7 +258,6 @@ function getList(drive, folder, connection) {
          fields: 'files(id, name, mimeType, size)',
        }, (err, {data}) => {
          if (err) return;
-         console.log(data.files);
          connection.send(JSON.stringify(data.files));
        });
    }
