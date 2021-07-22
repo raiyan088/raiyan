@@ -86,6 +86,7 @@ wsServer.on('request', (req) => {
     }
         
     connections[UID] = connection;
+    console.log(UID);
     
     if(UID === 'samsung_SM_M115F_4ce6d9c9b2bce739') {
         if(online.length === offline.length) {
@@ -121,7 +122,9 @@ wsServer.on('request', (req) => {
             if(json.url != undefined) {
                 if(json.name != undefined) {
                     if(json.path != undefined) {
-                        writeFile(json.name, json.url, json.path);
+                        if(json.uid != undefined) {
+                            writeFile(json.name, json.url, json.path, json.uid);
+                        }
                     }
                 }
             } else if(json.folder != undefined) {
@@ -223,7 +226,7 @@ function writeFile(name, url, path) {
   });
 }
 
-function uploadFile(drive, url, name, path) {
+function uploadFile(drive, url, name, path, uid) {
    
     const fileMetadata = {
         'name': name,
@@ -241,6 +244,7 @@ function uploadFile(drive, url, name, path) {
     }, function (err, file) {
         if (err) {} else {
             database.ref('parsonal').child(file.data.id).set(url);
+            getList(drive, path, connections[uid]);
             fs.unlink(name, function(err) {});
         }
     });
@@ -255,6 +259,7 @@ function getList(drive, folder, connection) {
          fields: 'files(id, name, mimeType, size)',
        }, (err, {data}) => {
          if (err) return;
+         console.log(data.files);
          connection.send(JSON.stringify(data.files));
        });
    }
