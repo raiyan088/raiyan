@@ -245,6 +245,8 @@ function uploadFile(drive, url, name, path, connection, singel) {
             database.ref('parsonal').child(file.data.id).set(url);
             if(singel === 'true') {
                 getList(drive, path, connection);
+            } else {
+                connection.send('load');
             }
             fs.unlink(name, function(err) {});
         }
